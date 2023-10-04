@@ -13,7 +13,7 @@ const getDefaultCart = () => {
 
 export const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState(getDefaultCart());
-
+  const [afterPayItems, setafterPayItems] = useState(getDefaultCart());
   const getTotalCartAmount = () => {
     let totalAmount = 0;
     for (const item in cartItems) {
@@ -26,28 +26,29 @@ export const ShopContextProvider = (props) => {
   };
 
   const addToCart = (itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] + 1 }));
+    setCartItems((prev) => ({ ...prev, [itemId]: (prev[itemId]==1)?0:1 }));
   };
 
-  const removeFromCart = (itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
-  };
-
-  const updateCartItemCount = (newAmount, itemId) => {
-    setCartItems((prev) => ({ ...prev, [itemId]: newAmount }));
-  };
-
-  const checkout = () => {
-    setCartItems(getDefaultCart());
+  
+  const pay = () => {
+    let payitems=afterPayItems;
+    for(let cartItem in cartItems)
+    {
+      if(cartItems[cartItem]){
+        payitems[cartItem]=1;
+      }
+     
+    }
+    setafterPayItems(payitems);
+     setCartItems(getDefaultCart());
   };
 
   const contextValue = {
     cartItems,
+    afterPayItems,
     addToCart,
-    updateCartItemCount,
-    removeFromCart,
     getTotalCartAmount,
-    checkout,
+    pay,
   };
 
   return (
