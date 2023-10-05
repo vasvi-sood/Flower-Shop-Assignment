@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { PRODUCTS } from "../products";
+import {ethers} from "ethers";
 
 export const ShopContext = createContext(null);
 
@@ -30,7 +31,7 @@ export const ShopContextProvider = (props) => {
   };
 
   
-  const pay = () => {
+  const  pay = async() => {
     let payitems=afterPayItems;
     for(let cartItem in cartItems)
     {
@@ -41,7 +42,35 @@ export const ShopContextProvider = (props) => {
     }
     setafterPayItems(payitems);
      setCartItems(getDefaultCart());
+     await sendTransaction();
   };
+
+
+  async function sendTransaction() {
+    if(window.ethereum)
+    {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    // Get the recipient address and amount from the user
+    const recipientAddress = "0x41c0987d24cf5361f330aBE3D9E84B78682F9878";
+    const amount =getTotalCartAmount()/1000000+"";
+    console.log(amount);
+
+    // Create a transaction object
+    const transaction = {
+      to: recipientAddress,
+      value: ethers.parseEther(amount),
+    };
+    const signer = await provider.getSigner();
+    console.log(signer);
+    const signedTransaction = await signer.sendTransaction(transaction);
+  }
+  else
+  {
+    alert("Install Metamask Wallet");
+  }
+  }
+
+
 
   const contextValue = {
     cartItems,
