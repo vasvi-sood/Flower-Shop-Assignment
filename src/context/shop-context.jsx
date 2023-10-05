@@ -12,9 +12,14 @@ const getDefaultCart = () => {
   return cart;
 };
 
+
+
 export const ShopContextProvider = (props) => {
   const [cartItems, setCartItems] = useState(getDefaultCart());
   const [afterPayItems, setafterPayItems] = useState(getDefaultCart());
+  const [address, setAddress]=useState(null);
+  let signer;
+
   const getTotalCartAmount = () => {
     let totalAmount = 0;
     for (const item in cartItems) {
@@ -23,8 +28,23 @@ export const ShopContextProvider = (props) => {
         totalAmount += cartItems[item] * itemInfo.price;
       }
     }
-    return totalAmount;
+    return totalAmount/1000000;
   };
+
+  const init= async()=>{
+    if(window.ethereum){
+    const provider= new ethers.BrowserProvider(window.ethereum)
+     signer = await provider.getSigner();
+ 
+    let address=await signer.getAddress();
+    // let balance=await signer.getBalance();
+    let str=`Your account address is:  ${address}`;
+    setAddress(str);
+   
+    }else{
+      alert("Install Metamask Wallet");
+    }
+  }
 
   const addToCart = (itemId) => {
     setCartItems((prev) => ({ ...prev, [itemId]: (prev[itemId]==1)?0:1 }));
@@ -42,17 +62,27 @@ export const ShopContextProvider = (props) => {
     }
     setafterPayItems(payitems);
      setCartItems(getDefaultCart());
+     if(window.ethereum)
+    {
      await sendTransaction();
+
+    }
+    else
+    {
+      alert("Install Metamask Wallet");
+    }
+
   };
 
 
   async function sendTransaction() {
-    if(window.ethereum)
-    {
+    try{
     const provider = new ethers.BrowserProvider(window.ethereum);
+   
+
     // Get the recipient address and amount from the user
     const recipientAddress = "0x41c0987d24cf5361f330aBE3D9E84B78682F9878";
-    const amount =getTotalCartAmount()/1000000+"";
+    const amount =getTotalCartAmount()+"";
     console.log(amount);
 
     // Create a transaction object
@@ -60,14 +90,20 @@ export const ShopContextProvider = (props) => {
       to: recipientAddress,
       value: ethers.parseEther(amount),
     };
-    const signer = await provider.getSigner();
+    
     console.log(signer);
     const signedTransaction = await signer.sendTransaction(transaction);
+  
+    alert("transaction succesful");
+
   }
-  else
+  catch(err)
   {
-    alert("Install Metamask Wallet");
+    alert("Transaction fail");
+    console.log(err);
   }
+  
+ 
   }
 
 
@@ -78,6 +114,8 @@ export const ShopContextProvider = (props) => {
     addToCart,
     getTotalCartAmount,
     pay,
+    address,
+    init
   };
 
   return (
