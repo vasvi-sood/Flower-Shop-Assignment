@@ -52,16 +52,16 @@ export const ShopContextProvider = (props) => {
 
   
   const  pay = async() => {
-    let payitems=afterPayItems;
-    for(let cartItem in cartItems)
-    {
-      if(cartItems[cartItem]){
-        payitems[cartItem]=1;
-      }
+    // let payitems=afterPayItems;
+    // for(let cartItem in cartItems)
+    // {
+    //   if(cartItems[cartItem]){
+    //     payitems[cartItem]=1;
+    //   }
      
-    }
-    setafterPayItems(payitems);
-     setCartItems(getDefaultCart());
+    // }
+    // setafterPayItems(payitems);
+    //  setCartItems(getDefaultCart());
      if(window.ethereum)
     {
      await sendTransaction();
@@ -93,6 +93,17 @@ export const ShopContextProvider = (props) => {
     
     console.log(signer);
     const signedTransaction = await signer.sendTransaction(transaction);
+    console.log("done");
+    let payitems=afterPayItems;
+    for(let cartItem in cartItems)
+    {
+      if(cartItems[cartItem]){
+        payitems[cartItem]=1;
+      }
+     
+    }
+    setafterPayItems(payitems);
+     setCartItems(getDefaultCart());
   
     alert("transaction succesful");
 
